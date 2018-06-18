@@ -9,6 +9,7 @@ class Backdrop extends StatefulWidget {
   final Widget frontLayer;
   final Widget backLayer;
   final Widget frontTitle;
+  final String frontSubTitle;
   final Widget backTitle;
 
   const Backdrop({
@@ -16,11 +17,13 @@ class Backdrop extends StatefulWidget {
     @required this.frontLayer,
     @required this.backLayer,
     @required this.frontTitle,
+    @required this.frontSubTitle,
     @required this.backTitle,
   })  : assert(currentCategory != null),
         assert(frontLayer != null),
         assert(backLayer != null),
         assert(frontTitle != null),
+        assert(frontSubTitle != null),
         assert(backTitle != null);
 
   @override
@@ -77,9 +80,10 @@ class _BackdropState extends State<Backdrop>
         widget.backLayer,
         PositionedTransition(
           rect: layerAnimation,
-          child: _FrontLayer(
+          child: FrontLayer(
             onTap: _toggleBackdropLayerVisibility,
             child: widget.frontLayer,
+            subTitle: widget.frontSubTitle,
           ),
         ),
       ],
@@ -98,19 +102,8 @@ class _BackdropState extends State<Backdrop>
         frontTitle: widget.frontTitle,
         backTitle: widget.backTitle,
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.search),
-          onPressed: () {
-            // TODO: Add open login (104)
-          },
-        )
-      ],
     );
-    return Scaffold(
-      appBar: appBar,
-      body: LayoutBuilder(builder: _buildStack)
-    );
+    return Scaffold(appBar: appBar, body: LayoutBuilder(builder: _buildStack));
   }
 
   bool get _frontLayerVisible {
@@ -125,15 +118,24 @@ class _BackdropState extends State<Backdrop>
   }
 }
 
-class _FrontLayer extends StatelessWidget {
-  const _FrontLayer({
-    Key key,
-    this.onTap,
-    this.child,
-  }) : super(key: key);
-
+class FrontLayer extends StatefulWidget {
   final VoidCallback onTap;
   final Widget child;
+  final String subTitle;
+
+  const FrontLayer({
+    @required this.onTap,
+    @required this.child,
+    @required this.subTitle,
+  })  : assert(onTap != null),
+        assert(child != null),
+        assert(subTitle != null);
+
+  @override
+  _FrontLayer createState() => _FrontLayer();
+}
+
+class _FrontLayer extends State<FrontLayer> {
 
   @override
   Widget build(BuildContext context) {
@@ -141,23 +143,37 @@ class _FrontLayer extends StatelessWidget {
       elevation: 16.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16.0),
-            topRight: Radius.circular(16.0)
-        ),
+            topLeft: Radius.circular(16.0), topRight: Radius.circular(16.0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: onTap,
-            child: Container(
-              height: 40.0,
-              alignment: AlignmentDirectional.centerStart,
-            ),
+            onTap: widget.onTap,
+            child: new Padding(
+                padding: EdgeInsets.only(top: 16.0, left: 14.0, right: 14.0),
+                child: new Column(
+                  children: [
+                    new Container(
+                      child: new Row(
+                        children: <Widget>[
+                          new Expanded(
+                              child: new Text(
+                                widget.subTitle,
+                                style: new TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )),
+                        ],
+                      ),
+                    ),
+                    new Padding(padding: EdgeInsets.only(top: 8.0), child: new Divider()),
+                  ],
+                )),
           ),
           Expanded(
-            child: child,
+            child: widget.child,
           ),
         ],
       ),
@@ -197,44 +213,45 @@ class _BackdropTitle extends AnimatedWidget {
           child: IconButton(
             padding: EdgeInsets.only(right: 8.0),
             onPressed: this.onPress,
-            icon: Stack(children: <Widget>[
-              new Opacity(
-                opacity: new CurvedAnimation(
-                  parent: new ReverseAnimation(animation),
-                  curve: const Interval(0.5, 1.0),
-                ).value,
-                child: new AnimatedBuilder(
-                  animation: animationController,
-                  child: new Container(
-                    child: new Icon(Icons.close),
+            icon: Stack(
+              children: <Widget>[
+                new Opacity(
+                  opacity: new CurvedAnimation(
+                    parent: new ReverseAnimation(animation),
+                    curve: const Interval(0.5, 1.0),
+                  ).value,
+                  child: new AnimatedBuilder(
+                    animation: animationController,
+                    child: new Container(
+                      child: new Icon(Icons.close),
+                    ),
+                    builder: (BuildContext context, Widget _widget) {
+                      return new Transform.rotate(
+                        angle: animationController.value * -6.3,
+                        child: _widget,
+                      );
+                    },
                   ),
-                  builder: (BuildContext context, Widget _widget) {
-                    return new Transform.rotate(
-                      angle: animationController.value * -6.3,
-                      child: _widget,
-                    );
-                  },
                 ),
-              ),
-              new Opacity(
-                opacity: new CurvedAnimation(
-                  parent: animation,
-                  curve: const Interval(0.5, 1.0),
-                ).value,
-                child: new AnimatedBuilder(
-                  animation: animationController,
-                  child: new Container(
-                    child: new Icon(Icons.menu),
+                new Opacity(
+                  opacity: new CurvedAnimation(
+                    parent: animation,
+                    curve: const Interval(0.5, 1.0),
+                  ).value,
+                  child: new AnimatedBuilder(
+                    animation: animationController,
+                    child: new Container(
+                      child: new Icon(Icons.menu),
+                    ),
+                    builder: (BuildContext context, Widget _widget) {
+                      return new Transform.rotate(
+                        angle: animationController.value * 6.3,
+                        child: _widget,
+                      );
+                    },
                   ),
-                  builder: (BuildContext context, Widget _widget) {
-                    return new Transform.rotate(
-                      angle: animationController.value * 6.3,
-                      child: _widget,
-                    );
-                  },
                 ),
-              ),
-            ],
+              ],
             ),
           ),
         ),
