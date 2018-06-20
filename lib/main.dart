@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'phrase_listing.dart';
@@ -33,40 +34,51 @@ class _ThreeHundredApp extends State<ThreeHundredApp>
       theme: new ThemeData(
         primaryColor: Colors.red,
       ),
-      home: new Scaffold(
-        appBar: new AppBar(
-            backgroundColor: _appBarColor,
-            title: _appBarTitle,
-            leading: _appBarLeadingIcon,
-            actions: getAppBarActions(context)
-        ),
-        body: new PageView(
-            children: [
-              new PhraseListing(searchText: _searchText),
-              new Container(color: Colors.green),
-              new Container(color: Colors.grey)
-            ],
-            controller: _pageController,
-            onPageChanged: onPageChanged
-        ),
-        bottomNavigationBar: new BottomNavigationBar(
-            items: [
-              new BottomNavigationBarItem(
-                  icon: new Icon(Icons.library_books),
-                  title: new Text("All")
-              ),
-              new BottomNavigationBarItem(
-                  icon: new Icon(Icons.favorite),
-                  title: new Text("Favorites")
-              ),
-              new BottomNavigationBarItem(
-                  icon: new Icon(Icons.info),
-                  title: new Text("About")
-              ),
-            ],
-            onTap: onNavigationTapped,
-            currentIndex: _currentPage
-        ),
+      home: new WillPopScope(
+        onWillPop: (){
+          setState(() {
+            if (this._appBarLeadingIcon != null) {
+              onSearchFinished();
+            } else {
+              exit(0);
+            }
+          });
+        },
+        child: new Scaffold(
+          appBar: new AppBar(
+              backgroundColor: _appBarColor,
+              title: _appBarTitle,
+              leading: _appBarLeadingIcon,
+              actions: getAppBarActions(context)
+          ),
+          body: new PageView(
+              children: [
+                new PhraseListing(searchText: _searchText),
+                new Container(color: Colors.green),
+                new Container(color: Colors.grey)
+              ],
+              controller: _pageController,
+              onPageChanged: onPageChanged
+          ),
+          bottomNavigationBar: new BottomNavigationBar(
+              items: [
+                new BottomNavigationBarItem(
+                    icon: new Icon(Icons.library_books),
+                    title: new Text("All")
+                ),
+                new BottomNavigationBarItem(
+                    icon: new Icon(Icons.favorite),
+                    title: new Text("Favorites")
+                ),
+                new BottomNavigationBarItem(
+                    icon: new Icon(Icons.info),
+                    title: new Text("About")
+                ),
+              ],
+              onTap: onNavigationTapped,
+              currentIndex: _currentPage
+          ),
+        )
       ),
     );
   }
