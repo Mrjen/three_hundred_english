@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:three_hundred_english/phrase.dart';
+
+const MENU_ITEM_REPORT_ABUSE = "REPORT_ABUSE";
 
 class PhraseDetails extends StatefulWidget {
-  final String phrase;
+  final Phrase phrase;
   PhraseDetails({Key key, this.phrase}) : super(key: key);
   @override
   _PhraseDetails createState() => new _PhraseDetails();
@@ -21,13 +25,21 @@ class _PhraseDetails extends State<PhraseDetails> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: buildBar(context),
-      body: new Center(
-        child: new RaisedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: new Text(widget.phrase),
-        ),
+      body: ListView.builder(
+        itemCount: 1,
+        itemBuilder: (context, index) {
+          return Column(
+            children: <Widget>[
+              buildPhraseCard(context),
+              Container(
+                padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 16.0),
+                alignment: FractionalOffset.centerLeft,
+                child: Text("Notes and Tips"),
+              ),
+              buildNoteList(context)
+            ],
+          );
+        },
       ),
     );
   }
@@ -45,11 +57,153 @@ class _PhraseDetails extends State<PhraseDetails> {
               this.favoriteIcon = new Icon(Icons.favorite, color: Colors.white);
             } else {
               this.favoriteIcon =
-                  new Icon(Icons.favorite_border, color: Colors.white);
+              new Icon(Icons.favorite_border, color: Colors.white);
             }
           });
         },
-      ),
+      ), new PopupMenuButton(
+          itemBuilder: (BuildContext context) => <PopupMenuItem<String>>[
+            const PopupMenuItem<String>(
+                value: MENU_ITEM_REPORT_ABUSE,
+                child: const Text("Report abuse")
+            )
+          ]
+      )
     ]);
   }
+
+  Widget buildPhraseCard(BuildContext context) {
+    return new Card(
+      child: new Column(
+        children: <Widget>[
+          buildPhraseTile(widget.phrase),
+          new Row(
+            children: <Widget>[
+              new ButtonTheme.bar( // make buttons use the appropriate styles for cards
+                child: new ButtonBar(
+                  alignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    new FlatButton(
+                      child: Text('COLLABORATE'),
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return buildSheetAddNote(context);
+                            }
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildNoteList(BuildContext context) {
+    return new Container(
+        child: ListView(
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            children: ListTile.divideTiles(
+                context: context,
+                tiles: new List.filled(15,
+                    new ListTile(
+                      contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
+                      title: Text("Test test test", textAlign: TextAlign.justify,),
+                      subtitle: Text(formatDate(new DateTime.now()), textAlign: TextAlign.justify,),
+                    ))
+            ).toList()
+        )
+    );
+  }
+
+  Widget buildSheetAddNote(BuildContext context) {
+    return new Container(
+        child: new Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                new Expanded(
+                    child: new TextField(
+                      autofocus: true,
+                      style: new TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.grey[800],
+                      ),
+                      decoration: new InputDecoration(
+                        hintText: "Add a note or tip...",
+                        hintStyle: new TextStyle(color: Colors.grey[800]),
+                      ),
+                    )
+                ),
+                new IconButton(
+                    icon: Icon(
+                      Icons.send,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      //TODO send
+                      Navigator.pop(context);
+                    }
+                )
+              ],
+            )
+        )
+    );
+  }
+
+  void onPopupMenuItemSelected(String value) {
+    if (MENU_ITEM_REPORT_ABUSE == value) {
+      //TODO
+    }
+  }
+
+  Widget buildPhraseTile(Phrase phrase) {
+    return Container(
+      padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+      child: Row(
+        children: <Widget>[
+          new Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                    widget.phrase.toString(),
+                    textAlign: TextAlign.justify,
+                    style: new TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.grey[800],
+                    )
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 4.0),
+                    child: Text(
+                        widget.phrase.getCategoriesAsString(usePrefix: true),
+                        textAlign: TextAlign.justify,
+                        style: new TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.grey[500],
+                        )
+                    )
+                )
+              ],
+            )
+          )
+        ],
+      ),
+    );
+  }
+
+
+  String formatDate(DateTime dateTime) {
+      return "on " + DateFormat.yMMMd().format(dateTime)
+          + " at " + DateFormat.jm().format(dateTime);
+  }
+
 }
+
