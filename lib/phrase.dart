@@ -1,34 +1,48 @@
 import "package:firebase_database/firebase_database.dart";
 
 const String ATTRIBUTE_ID = "id";
-const String ATTRIBUTE_DESCRIPTION = "description";
-const String ATTRIBUTE_CATEGORIES = "categories";
-const String ATTRIBUTE_REPORTED_ABUSE = "reportedAbuse";
+const String ATTRIBUTE_VALUE = "value";
+const String ATTRIBUTE_CATEGORY_LIST = "categoryList";
+const String ATTRIBUTE_ADDITIONAL_LIST = "additionalList";
 
 class Phrase {
 
   String _id;
-  String _description;
-  List<String> _categories = new List();
-  bool _reportedAbuse;
+  String _value;
+  List<String> _categoryList = new List();
+  List<String> _additionalList = new List();
 
-  Phrase(this._id, this._description, this._categories);
+  Phrase(this._id, this._value, this._categoryList);
 
-  //TODO description has to be the main phrase
-  //TODO create a List of author's examples (can't be edited)
-  //TODO check how to style text (color some parts like v.+ING
+  Phrase.withAdditionalList(String id,
+      String value,
+      List<String> categoryList,
+      List<String> additionalList)
+
+      : _id = id,
+        _value = value,
+        _categoryList = categoryList,
+        _additionalList = additionalList;
+
+  Phrase.fromSnapshot(DataSnapshot snapshot)
+      : _id = snapshot.key,
+        _value = snapshot.value[ATTRIBUTE_VALUE],
+        _categoryList = snapshot.value[ATTRIBUTE_CATEGORY_LIST],
+        _additionalList = snapshot.value[ATTRIBUTE_ADDITIONAL_LIST];
 
   @override
   String toString() {
-    return _id + ". " + _description;
+    return _id + ". " + _value;
   }
 
   String get id => _id;
 
-  String get description => _description;
+  String get value => _value;
+
+  List<String> get additionalList => _additionalList;
 
   int getCategoriesCount() {
-    return _categories != null ? _categories.length : 0;
+    return _categoryList != null ? _categoryList.length : 0;
   }
 
   String getCategoriesAsString({bool usePrefix : false}) {
@@ -37,22 +51,22 @@ class Phrase {
     return categoryCount == 0
       ? ""
       : (usePrefix ? (categoryCount > 1 ? "Categories: " : "Category: ") : "")
-        + _categories.map((category) => category).join(", ");
+        + _categoryList.map((category) => category).join(", ");
+  }
+
+  int getAlternativesCount() {
+    return _additionalList != null ? _additionalList.length : 0;
   }
 
   toJson() {
     return {
       ATTRIBUTE_ID: _id,
-      ATTRIBUTE_DESCRIPTION: _description,
-      ATTRIBUTE_CATEGORIES: _categories,
-      ATTRIBUTE_REPORTED_ABUSE: _reportedAbuse
+      ATTRIBUTE_VALUE: _value,
+      ATTRIBUTE_CATEGORY_LIST: _categoryList,
+      ATTRIBUTE_ADDITIONAL_LIST: _additionalList
     };
   }
 
-  Phrase.fromSnapshot(DataSnapshot snapshot)
-    : _id = snapshot.key,
-      _description = snapshot.value[ATTRIBUTE_DESCRIPTION],
-      _categories = snapshot.value[ATTRIBUTE_CATEGORIES],
-      _reportedAbuse = snapshot.value[ATTRIBUTE_REPORTED_ABUSE];
+
 
 }
