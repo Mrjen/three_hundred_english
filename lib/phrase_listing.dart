@@ -27,7 +27,7 @@ class _SearchListState extends State<PhraseListing> {
     _list.add(new Phrase.withAdditionalList("4", "As far as ___ noun/v.+ING ___ go/goes, ___.", ["General"], ["As far as ___ noun/v.+ING is/are concerned, ___."]));
     _list.add(new Phrase.withAdditionalList("5", "Regarding ___, ___.", ["General"], ["___ regarding ___.", "As regards ___, ___.", "In regard to ___, ___.", "With regard to ___, ___."]));
     _list.add(new Phrase("6", "With respect to ___, ___.", ["General"]));
-    _list.add(new Phrase("7", "I like v+.ING. I like v.+ING because ___. In addition, I also like v.+ING.", ["General"]));
+    _list.add(new Phrase("7", "I like v.+ING. I like v.+ING because ___. In addition, I also like v.+ING.", ["General"]));
     _list.add(new Phrase("8", "Oh really? +Three questions (Why? What kind of ___? Is there anything else about ___? )", ["General"]));
     _list.add(new Phrase.withAdditionalList("9", "Well, ___.", ["General"], ["In my case, ___.", "What about you?"]));
     _list.add(new Phrase.withAdditionalList("10", "Well, I enjoy v.+ING. That's because ___.", ["General"], ["Oh really? That's interesting. Tell me more.", "Is this your first time v.+ING?"]));

@@ -116,7 +116,7 @@ class _ThreeHundredApp extends State<ThreeHundredApp>
                         color: Colors.grey[800],
                       ),
                       decoration: new InputDecoration(
-                          hintText: "Filter by word...",
+                          hintText: "Filter by word or category...",
                           hintStyle: new TextStyle(color: Colors.grey[800]),
                           labelStyle: Theme
                               .of(context)

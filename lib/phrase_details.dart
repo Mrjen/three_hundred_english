@@ -41,7 +41,7 @@ class _PhraseDetails extends State<PhraseDetails> {
                           padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 8.0),
                           alignment: FractionalOffset.centerLeft,
                           child: Text(
-                              "Additional sentences and examples",
+                              "Additional sentences, tips or examples",
                               style: new TextStyle(
                                   fontWeight: FontWeight.bold
                               )
@@ -64,7 +64,7 @@ class _PhraseDetails extends State<PhraseDetails> {
                         padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 16.0, bottom: 8.0),
                         alignment: FractionalOffset.centerLeft,
                         child: Text(
-                            "Notes and Tips",
+                            "Public collaboration",
                             style: new TextStyle(
                                 fontWeight: FontWeight.bold
                             )
@@ -143,7 +143,16 @@ class _PhraseDetails extends State<PhraseDetails> {
             physics: ClampingScrollPhysics(),
             children: phrase.additionalList.map((additional) => new ListTile(
               contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
-              title: Text(additional, textAlign: TextAlign.justify,),
+              title: new RichText(
+                textAlign: TextAlign.justify,
+                text: new TextSpan(
+                  style: new TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black,
+                  ),
+                  children: new _PhraseFormat().format(additional),
+                ),
+              ),
             )).toList()
         )
     );
@@ -232,23 +241,14 @@ class _PhraseDetails extends State<PhraseDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-//                Text(
-//                    widget.phrase.toString(),
-//                    textAlign: TextAlign.justify,
-//                    style: new TextStyle(
-//                      fontSize: 18.0,
-//                      color: Colors.grey[800],
-//                    )
-//                ),
                 new RichText(
+                  textAlign: TextAlign.justify,
                   text: new TextSpan(
-                    // Note: Styles for TextSpans must be explicitly defined.
-                    // Child text spans will inherit styles from parent
                     style: new TextStyle(
                       fontSize: 18.0,
                       color: Colors.black,
                     ),
-                    children: bla(phrase.toString(), new List()),
+                    children: new _PhraseFormat().format(phrase.toString()),
                   ),
                 ),
                 Padding(
@@ -276,41 +276,62 @@ class _PhraseDetails extends State<PhraseDetails> {
           + " at " + DateFormat.jm().format(dateTime);
   }
 
-  List<TextSpan> bla(String description, List<TextSpan> spans) {
-    int index = description.indexOf(" noun/v.+ING ");
+}
+
+class _PhraseHighlightWord {
+  final String _word;
+  final Color _color;
+
+  const _PhraseHighlightWord._create(this._word, this._color);
+
+  String get word => _word;
+
+  Color get color => _color;
+
+  static const NOUN_ING = const _PhraseHighlightWord._create("noun/v.+ING", Colors.orange);
+  static const V_ING = const _PhraseHighlightWord._create("v.+ING", Colors.green);
+  static const P_P = const _PhraseHighlightWord._create("p.p.", Colors.purple);
+
+  static List<_PhraseHighlightWord> toList() {
+    return List.of([NOUN_ING, V_ING, P_P]);
+  }
+}
+
+class _PhraseFormat {
+
+  List<TextSpan> format(String phrase) {
+    return _format(phrase, new List());
+  }
+
+  List<TextSpan> _format(String phrase, List<TextSpan> spans) {
+    int index = -1;
+    _PhraseHighlightWord phraseHighlightWord;
+
+    for (_PhraseHighlightWord highlightWord in _PhraseHighlightWord.toList()) {
+
+      if ((index = phrase.indexOf(highlightWord.word)) > -1) {
+        phraseHighlightWord = highlightWord;
+        break;
+      }
+    }
+
     if (index > -1) {
-      spans.add(new TextSpan(text: description.substring(0, index)));
+      String highlightWord = phraseHighlightWord.word;
+
+      spans.add(new TextSpan(text: phrase.substring(0, index)));
       spans.add(new TextSpan(
-        text: " noun/v.+ING ",
-        style: new TextStyle(
-            background: new Paint()..color = Colors.primaries[new Random().nextInt(Colors.primaries.length)],
-            color: Colors.white,
-            fontWeight: FontWeight.bold)
+          text: highlightWord,
+          style: new TextStyle(
+//              background: new Paint()..color = phraseHighlightWord.color,
+              color: phraseHighlightWord.color,
+              fontWeight: FontWeight.bold)
       ));
-      return bla(description.substring(index + 13), spans);
+      return _format(phrase.substring(index + highlightWord.length), spans);
+
     } else {
-      spans.add(new TextSpan(text: description));
+      spans.add(new TextSpan(text: phrase));
       return spans;
     }
-//
-//
-//    List<TextSpan> spans = phrase.description.split("v.+ING")
-//        .map((text) => new TextSpan(text: text));
-//
-//    return new RichText(
-//      text: new TextSpan(
-//        // Note: Styles for TextSpans must be explicitly defined.
-//        // Child text spans will inherit styles from parent
-//        style: new TextStyle(
-//          fontSize: 14.0,
-//          color: Colors.black,
-//        ),
-//        children: <TextSpan>[
-//          new TextSpan(text: 'Hello'),
-//          new TextSpan(text: 'World', style: new TextStyle(fontWeight: FontWeight.bold)),
-//        ],
-//      ),
-//    );
   }
 
 }
